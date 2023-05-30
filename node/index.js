@@ -6,11 +6,11 @@
  */
 
 const express = require('express');
+const axios = require('axios').default;
 const mysql = require('mysql');
 
 const app = express();
-
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
 const databaseConfig = {
   host: 'db',
@@ -19,11 +19,50 @@ const databaseConfig = {
   database: 'nodedb',
 };
 
-const connection = mysql.createConnection(databaseConfig);
+app.get('/', (_req, res) => {
+  insertQuery(res);
+});
 
-const CREATE_TABLE = `CREATE TABLE IF NOT EXISTS people(id int not null auto_increment, name varchar(255), primary key(id))`;
-const INSERT_QUERY = `INSERT INTO people(name) values('Glaucia Lemos')`;
-const SELECT_QUERY = `SELECT * FROM people`;
+app.listen(PORT, () => {
+  console.log(`Server running on Port...: ${PORT}`);
+});
+
+async function getName() {
+  const RANDOM = Math.floor(Math.random() * 20);
+  const response = await axios.get('https://swapi.dev/api/people');
+
+  return response.data.results[RANDOM].name;
+}
+
+async function insertQuery() {
+  const name = await getName();
+  const connection = mysql.createConnection(databaseConfig);
+  connection.query(`INSERT INTO people(name) values('${name}')`);
+
+  console.log(`Name: ${name} inserted successfully in the database!`);
+
+  getAllNames(res, connection);
+}
+
+function getAllNames(res, connection) {
+  const SELECT_QUERY = 'SELECT name FROM people';
+
+  connection.query(SELECT_QUERY, (_error, result, fields) => {
+    const names = result.map((item) => item.name).join(', ');
+
+    res.send(`
+      <h1>Full Cycle Rocks!</h1>
+      <h2>Desafio Docker + Nginx+ Node.js - Proxy Reverse</h2>
+
+      <h3>Lista de nomes cadastradas no banco de dados:</h3>
+      <ul>
+        ${names}
+      </ul>
+    `);
+  });
+
+  connection.end();
+}
 
 connection.query(CREATE_TABLE);
 
@@ -43,8 +82,4 @@ app.get('/', (_req, res) => {
       </ul>
     `);
   });
-});
-
-app.listen(PORT, () => {
-  console.log(`Server running on Port...: ${PORT}`);
 });
