@@ -47,6 +47,14 @@ docker network create app-node-network
 docker-compose up -d --build
 ```
 
+3. Agora basta acessar a aplicação em seu browser:
+
+```bash
+http://localhost:8080
+```
+
+Todas as vezes que você atualizar a página, um novo nome será adicionado ao banco de dados. :)
+
 ## ❓Issues
 
 Se você tiver algum problema com este projeto, sinta-se à vontade para abrir uma issue aqui no GitHub  **[issues page](https://github.com/glaucia86/desafio-fc-nginx-node/issues)**
