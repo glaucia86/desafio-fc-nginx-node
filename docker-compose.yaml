@@ -4,35 +4,15 @@ services:
   app:
     build:
       context: ./node
+      dockerfile: Dockerfile
     container_name: app
-    image: glaucia86/node-desafio-fc:latest
-    networks:
-      - app-node-network
+    restart: always
     volumes:
       - ./node:/usr/src/app
-    environment:
-      DB_USER: root
-      DB_PASSWORD: root
-      DB_HOST: db
-      DB_PORT: 3306
-      DB_NAME: nodedb
+      - /usr/src/app/node_modules
     tty: true
-    ports:
-      - '3000:3000'
     depends_on:
       - db
-
-  nginx:
-    build:
-      context: ./nginx
-    container_name: nginx
-    image: glaucia86/nginx-desafio-fc:latest
-    ports:
-      - '8080:80'
-    networks:
-      - app-node-network
-    depends_on:
-      - app
 
   db:
     image: mysql:5.7
@@ -42,12 +22,18 @@ services:
     tty: true
     volumes:
       - ./mysql:/var/lib/mysql
+      - ./node/.docker/mysql:/docker-entrypoint-initdb.d
     environment:
-      MYSQL_DATABASE: nodedb
-      MYSQL_ROOT_PASSWORD: root
-    networks:
-      - app-node-network
+      - MYSQL_DATABASE=nodedb
+      - MYSQL_ROOT_PASSWORD=password
 
-networks:
-  app-node-network:
-    driver: bridge
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: nginx
+    ports:
+      - '8080:80'
+    depends_on:
+      - app
+      - db

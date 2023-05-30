@@ -35,7 +35,17 @@ Suba tudo em um repositório e faça a entrega.
 
 ## 🔥Como executar o projeto
 
+1. Primeiro você deve criar uma network para que os containers possam se comunicar entre si:
 
+```bash
+docker network create app-node-network
+```
+
+2. Agora basta executar o comando `docker-compose` para subir os containers e criar um build da aplicação:
+
+```bash
+docker-compose up -d --build
+```
 
 ## ❓Issues
 

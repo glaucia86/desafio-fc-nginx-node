@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 3000;
 const databaseConfig = {
   host: 'db',
   user: 'root',
-  password: 'root',
+  password: 'password',
   database: 'nodedb',
 };
 
