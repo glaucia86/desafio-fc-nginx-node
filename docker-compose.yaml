@@ -5,6 +5,7 @@ services:
     build:
       context: ./node
     container_name: app
+    image: glaucia86/node-desafio-fc:latest
     networks:
       - app-node-network
     volumes:
@@ -25,6 +26,7 @@ services:
     build:
       context: ./nginx
     container_name: nginx
+    image: glaucia86/nginx-desafio-fc:latest
     ports:
       - '8080:80'
     networks:
