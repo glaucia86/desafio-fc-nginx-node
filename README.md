@@ -41,10 +41,10 @@ Suba tudo em um repositório e faça a entrega.
 docker network create app-node-network
 ```
 
-2. Agora basta executar o comando `docker-compose` para subir os containers e criar um build da aplicação:
+1. Agora basta executar o comando `docker-compose` para subir os containers:
 
 ```bash
-docker-compose up -d --build
+docker-compose up -d
 ```
 
 3. Agora basta acessar a aplicação em seu browser:
