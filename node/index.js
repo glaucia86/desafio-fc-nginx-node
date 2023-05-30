@@ -12,7 +12,7 @@ const mysql = require('mysql');
 const app = express();
 const PORT = 3000;
 
-const databaseConfig = {
+const dbConfig = {
   host: 'db',
   user: 'root',
   password: 'password',
@@ -20,66 +20,69 @@ const databaseConfig = {
 };
 
 app.get('/', (_req, res) => {
-  insertQuery(res);
+  InsertName(res);
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on Port...: ${PORT}`);
+  console.log(`Application running on Port...: ${PORT} 🚀`);
 });
 
 async function getName() {
-  const RANDOM = Math.floor(Math.random() * 20);
+  const RANDOM = Math.floor(Math.random() * 10);
   const response = await axios.get('https://swapi.dev/api/people');
-
   return response.data.results[RANDOM].name;
 }
 
-async function insertQuery() {
+async function InsertName(res) {
   const name = await getName();
-  const connection = mysql.createConnection(databaseConfig);
-  connection.query(`INSERT INTO people(name) values('${name}')`);
+  const connection = mysql.createConnection(dbConfig);
+  const INSERT_QUERY = `INSERT INTO people(name) values('${name}')`;
 
-  console.log(`Name: ${name} inserted successfully in the database!`);
+  connection.query(INSERT_QUERY, (error, _results, _fields) => {
+    if (error) {
+      console.log(`Error inserting name: ${error}`);
+      res.status(500).send('Error inserting name');
+      return;
+    }
 
-  getAllNames(res, connection);
+    console.log(`${name} inserted successfully in the database!`);
+    getAll(res, connection);
+  });
 }
 
-function getAllNames(res, connection) {
-  const SELECT_QUERY = 'SELECT name FROM people';
+function getAll(res, connection) {
+  const SELECT_QUERY = `SELECT id, name FROM people`;
 
-  connection.query(SELECT_QUERY, (_error, result, fields) => {
-    const names = result.map((item) => item.name).join(', ');
+  connection.query(SELECT_QUERY, (error, results) => {
+    if (error) {
+      console.log(`Error getting people: ${error}`);
+      res.status(500).send('Error getting people');
+      return;
+    }
+
+    const tableRows = results
+      .map(
+        (person) => `
+        <tr>
+          <td>${person.id}</td>
+          <td>${person.name}</td>
+        </tr>
+      `
+      )
+      .join('');
+    const table = `
+      <table>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+        </tr>${tableRows}
+      </table>`;
 
     res.send(`
       <h1>Full Cycle Rocks!</h1>
-      <h2>Desafio Docker + Nginx+ Node.js - Proxy Reverse</h2>
-
-      <h3>Lista de nomes cadastradas no banco de dados:</h3>
-      <ul>
-        ${names}
-      </ul>
+      ${table}
     `);
-  });
 
-  connection.end();
+    connection.end();
+  });
 }
-
-connection.query(CREATE_TABLE);
-
-connection.query(INSERT_QUERY, (_, response) => {
-  connection.query(INSERT_QUERY(response.length + 1));
-});
-
-app.get('/', (_req, res) => {
-  connection.query(SELECT_QUERY, (_err, result) => {
-    res.send(`
-      <h1>Full Cycle Rocks!</h1>
-      <h2>Desafio Docker + Nginx+ Node.js - Proxy Reverse</h2>
-
-      <h3>Lista de nomes cadastradas no banco de dados:</h3>
-      <ul>
-        ${result.map((item) => `<li>${item.name}</li>`).join('')}
-      </ul>
-    `);
-  });
-});

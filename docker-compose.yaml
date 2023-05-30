@@ -15,7 +15,7 @@ services:
       - app-node-network
 
   app:
-    container_name: node-app
+    container_name: node
     build:
       context: ./node
       dockerfile: Dockerfile
@@ -27,7 +27,7 @@ services:
       - app-node-network
 
   db:
-    container_name: app-db
+    container_name: app
     image: mysql:5.7
     command: --innodb-use-native-aio=0
     restart: always
